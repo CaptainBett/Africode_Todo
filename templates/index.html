@@ -4,8 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Todo App</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='main.css')}}"
+    />
   </head>
   <body>
+
+    <header>
+      <h1>My Todo List</h1>
+    </header>
+
+<!-- Categories -->
+
+<div class="input-container">
+ <form action="{{ url_for('index') }}" method="post">
+  {{ form.hidden_tag() }}
+   {{ form.description(size=32,class='input-todo') }}
+   {{ form.category(class='form-category') }}
+    {{ form.submit(class='add-todo') }}
+ </form>
+<div class="categories">
+<!-- <a href="{{ url_for('index') }}" {% if not current_category %} class="active" {% endif %}>Todos</a> -->
+{% for category in categories %}
+<a href="{{ url_for('index',category=category.id) }}" {% if current_category and category.id %} class="active" {% endif %}>{{ category.description }}</a>
+{% endfor %}
+</div>
+</div>
+
+ <!-- End Categories -->
+
     {% with messages = get_flashed_messages(with_categories=true) %} {% if
     messages %}
     <ul class="flashes">
@@ -13,19 +42,53 @@
       <li
         style="color: {% if category == 'success' %}green{% elif category == 'danger' %}red{% else %}black{% endif %}"
       >
+      <div class="flash-message">
         {{ message }}
+      </div>
       </li>
       {% endfor %}
     </ul>
     {% endif %} {% endwith %}
-    <form action="/" method="post">
-      {{ form.hidden_tag() }} {{ form.description(size=32) }} {{ form.submit()
-      }}
-    </form>
-    <ul>
-      {% for todo in todos %}
-      <li>{{ todo.description }}</li>
-      {% endfor %}
-    </ul>
+
+    <!-- <div class="input-container"> -->
+      <!-- <div  class="form"> -->
+      <!-- <form action="{{ url_for('index') }}" method="post">
+        {{ form.hidden_tag() }} {{ form.description(size=32, class="input-todo") }} {{
+        form.submit(class="add-todo") }}
+      </form> -->
+      <!-- </div> -->
+    <!-- </div> -->
+    
+    <!-- Todo List -->
+
+    <!-- <h2>Todo List:</h2> -->
+    <a href="{{ url_for('index') }}" {% if not current_category %} class="active" {% endif %}><h2>Todos</h2></a>
+    
+    <div class="todo-list-container">
+    {% for todo in todos %}
+    <div class="todo-item">
+        <p>
+          <!-- Checkbox -->
+          <form action="{{ url_for('update_todo_status', todo_id=todo.id) }} " class="todo-form" method="post">
+            <input
+             type="checkbox" name="completed"
+             {% if todo.completed %} checked {% endif %}
+             onchange="this.form.submit()" />
+           <!-- End checkbox -->
+     <span class="todo-description">{{ todo.description }}</span>
+     <span class="todo-category">{{ todo.category }}</span>
+</form>
+
+<!-- Delete -->
+           <!-- <a href="/delete_todo/{{ todo.id }}"><input type="button" value="Delete" class="delete"></a> -->
+          <form action="{{ url_for('delete_todo', todo_id=todo.id) }}" method="post" class="delete">
+            <button type="submit" class="delete">&cross;</button>
+          </form>
+          <!-- End delete -->
+        </p> 
+      </div>
+    {% endfor %}
+
+    </div>
   </body>
 </html>
